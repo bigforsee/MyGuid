@@ -11,8 +11,6 @@
 预览网站
 执行以下命令，预览网站就在http://localhost:3000网址打开
 ```shell
-npm i docsify-cli -g
-docsify init ./docs
 cd docs
 docsify serve
 ```
