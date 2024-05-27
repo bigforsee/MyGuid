@@ -21,6 +21,7 @@
     - [nacos ](/Development/nacos/Nacos.md)
     - [OAuthh2 ](/Development/OAuthh2/OAuth2.md)
     - [PI ](/Development/PI/PI.md)
+      - [PI 接口配置手册 ](/Development/PI/PI接口配置手册.md)
     - [PIGX ](/Development/PIGX/pigx笔记.md)
     - [redis ](/Development/redis/redis.md)
     - [SAP ](/Development/SAP/ )
