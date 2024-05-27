@@ -1,0 +1,4 @@
+vi /etc/kubernetes/manifests/kube-apiserver.yaml
+
+没有就新增，有就只加后面的内容
+- --feature-gates=RemoveSelfLink=false

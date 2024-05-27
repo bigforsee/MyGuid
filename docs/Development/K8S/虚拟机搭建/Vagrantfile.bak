@@ -1,0 +1,29 @@
+#下面是全部代码：注意修改名与IP即可，新建虚拟机数量在第2行
+Vagrant.configure("2") do |config|
+   (1..1).each do |i|
+ 	# 设置虚拟机的名（修改自己需要的替换）k8s-node
+        config.vm.define "k8s-nfs#{160}" do |node|
+            # 设置虚拟机的Box
+            node.vm.box = "centos/7"
+
+            # 设置虚拟机的主机名 （修改自己需要的替换）k8s-node
+            node.vm.hostname="k8s-nfs#{160}"
+
+            # 设置虚拟机的IP （修改自己需要的IP替换）99
+            node.vm.network "private_network", ip: "192.168.56.#{159+i}", netmask: "255.255.255.0"
+
+            # 设置主机与虚拟机的共享目录
+            # node.vm.synced_folder "~/Documents/vagrant/share", "/home/vagrant/share"
+
+            # VirtaulBox相关配置
+            node.vm.provider "virtualbox" do |v|
+                # 设置虚拟机的名称 （修改自己需要的替换）k8s-node
+                v.name = "k8s-nfs#{160}"
+                # 设置虚拟机的内存大小
+                v.memory = 4096
+                # 设置虚拟机的CPU个数
+                v.cpus = 4
+            end
+        end
+   end
+end

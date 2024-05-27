@@ -1,0 +1,5 @@
+mkdir /etc/haproxy
+vi /etc/haproxy/haproxy.cfg
+
+mkdir /etc/keeplived
+vi /etc/keeplived/keepalived.conf

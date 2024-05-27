@@ -1,0 +1,16 @@
+k8s-node10  
+ip 192.168.56.121    10.0.2.8
+ 安装 docker  k8s all in one 模式
+
+k8s-node10  
+ip 192.168.56.122    10.0.2.9
+
+k8s-node12
+ip 192.168.56.123    10.0.2.11
+
+
+k8s-node13
+ip 192.168.56.124    10.0.2.10
+ 安装 docker  k8s all in one 模式
+
+

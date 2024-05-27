@@ -1,0 +1,9 @@
+apiVersion: projectcalico.org/v3
+kind: IPPool
+metadata:
+  name: ecology-pool
+spec:
+  blockSize: 31
+  cidr: 10.234.0.0/31
+  ipipMode: Never
+  natOutgoing: true
