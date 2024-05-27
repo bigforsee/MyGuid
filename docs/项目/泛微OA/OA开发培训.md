@@ -652,6 +652,17 @@ ecology/WEB-INF/prop/sapXIsoap.properties
 
 
 
+#### `executeBatchSql  `**使用方法**
+
+```java
+RecordSet rs = new Recordset();
+List<List> pramArr = new ArrayList<>();
+pramArr.add(new ArrayList<>(Arrays.asList("cG01-20210104-1001","168268")));
+pramArr.add(new ArrayList<>(Arrays.asList("c601-20210104-1021","168277")));
+boolean b = rs.executeBatchSql( s: "insert into formtable_main_271(dh sqr) values(? ?)",pramArr);
+log.writeLog( msg: "try executeBatchSql 【"+ b +"】");
+```
+
 
 
 

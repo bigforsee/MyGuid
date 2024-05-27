@@ -17,7 +17,7 @@
       - [常用操作 ](/Development/K8S/K8S操作.md)
     - [jenkins ](/Development/jenkins/jenkins.md)
     - [kafuka ](/Development/kafuka/kafuka学习笔记.md)
-    - [mysql ](/Development/mysql/Linux 在线安装指定版本的mysql.html)
+    - [mysql ](/Development/mysql/安装mysql8.md)
     - [nacos ](/Development/nacos/Nacos.md)
     - [OAuthh2 ](/Development/OAuthh2/OAuth2.md)
     - [PI ](/Development/PI/PI.md)
