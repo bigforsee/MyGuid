@@ -46,3 +46,41 @@ flush privileges;
 ```
 
 create user 'root'@'10.30.30.112' identified by 'Root@123';
+
+
+
+## 包安装MYSQL8.0
+
+```shell
+wget https://www.gitlink.org.cn/attachments/entries/get_file?download_url=https://www.gitlink.org.cn/api/lengleng/mirror/raw/mysql80-community-release-el7-11.noarch.rpm?ref=master -O mysql80-community-release-el7-7.noarch.rpm
+
+rpm -ivh mysql80-community-release-el7-7.noarch.rpm
+
+yum install -y mysql mysql-server
+
+# 修改配置文件
+vim /etc/my.cnf
+lower_case_table_names=1
+
+# 重启mysql
+systemctl restart mysqld
+
+# 查看默认密码 (注意复制全了很多特殊字符)
+grep password /var/log/mysqld.log
+
+# mysql client 链接 mysql
+mysql -uroot -p
+
+# 修改默认密码为 root
+alter user 'root'@'localhost' identified by 'ZxcRoot123!@#';
+set global validate_password.check_user_name=0;
+set global validate_password.policy=0;
+set global validate_password.length=1;
+alter user 'root'@'localhost' identified by 'root';
+
+# 修改为允许远程访问
+use mysql;
+update user set host = '%' where user = 'root';
+FLUSH PRIVILEGES;
+```
+

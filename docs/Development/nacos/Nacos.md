@@ -13,6 +13,15 @@
 
 *前提是搭建好了nfs持久化存储
 
+替换namespace变量
+
+```shell
+middleware 替换为当前需要部署的namespace
+local 替换为自己的storage-class
+```
+
+
+
 ### 1.创建服务nacos-headless
 
 这个是工作负载互相发现,修改cluster.conf使用的
@@ -23,7 +32,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nacos-headless
-  namespace: sn-prod-middleware
+  namespace: middleware
   labels:
     app: nacos
   annotations:
@@ -57,12 +66,12 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: nacos-cm
-  namespace: sn-dev-middleware
+  namespace: middleware
 data:
-  mysql.db.name: nacos_config
-  mysql.password: nacos
+  mysql.db.name: pigxx_config
+  mysql.password: root
   mysql.port: '3306'
-  mysql.user: nacos
+  mysql.user: root
 
 ```
 
@@ -75,7 +84,7 @@ apiVersion: v1
 kind: ReplicationController
 metadata:
   name: mysql
-  namespace: sn-prod-middleware
+  namespace: middleware
   labels:
     name: mysql
 spec:
@@ -113,7 +122,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mysql
-  namespace: sn-prod-middleware
+  namespace: middleware
   labels:
     name: mysql
 spec:
@@ -134,7 +143,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nacos-cm
-  namespace: sn-prod-middleware
+  namespace: middleware
 data:
   mysql.db.name: "nacos_config"
   mysql.port: "3306"
@@ -145,7 +154,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: nacos
-  namespace: sn-prod-middleware
+  namespace: middleware
 spec:
   serviceName: nacos-headless
   replicas: 3
@@ -240,7 +249,7 @@ spec:
     - metadata:
         name: plugindir
         annotations:
-          volume.beta.kubernetes.io/storage-class: "nfs-client-173"
+          volume.beta.kubernetes.io/storage-class: "local"
       spec:
         accessModes: [ "ReadWriteMany" ]
         resources:
@@ -249,7 +258,7 @@ spec:
     - metadata:
         name: datadir
         annotations:
-          volume.beta.kubernetes.io/storage-class: "nfs-client-173"
+          volume.beta.kubernetes.io/storage-class: "local"
       spec:
         accessModes: [ "ReadWriteMany" ]
         resources:
@@ -258,7 +267,7 @@ spec:
     - metadata:
         name: logdir
         annotations:
-          volume.beta.kubernetes.io/storage-class: "nfs-client-173"
+          volume.beta.kubernetes.io/storage-class: "local"
       spec:
         accessModes: [ "ReadWriteMany" ]
         resources:
@@ -506,14 +515,14 @@ spec:
         namespace: sn-fwoa-test
         creationTimestamp: null
         annotations:
-          volume.beta.kubernetes.io/storage-class: nfs-client-171
+          volume.beta.kubernetes.io/storage-class: local
       spec:
         accessModes:
           - ReadWriteMany
         resources:
           requests:
             storage: 5Gi
-        storageClassName: nfs-client-171
+        storageClassName: local
         volumeMode: Filesystem
       status:
         phase: Pending
@@ -524,14 +533,14 @@ spec:
         namespace: sn-fwoa-test
         creationTimestamp: null
         annotations:
-          volume.beta.kubernetes.io/storage-class: nfs-client-171
+          volume.beta.kubernetes.io/storage-class: local
       spec:
         accessModes:
           - ReadWriteMany
         resources:
           requests:
             storage: 5Gi
-        storageClassName: nfs-client-171
+        storageClassName: local
         volumeMode: Filesystem
       status:
         phase: Pending
@@ -542,14 +551,14 @@ spec:
         namespace: sn-fwoa-test
         creationTimestamp: null
         annotations:
-          volume.beta.kubernetes.io/storage-class: nfs-client-171
+          volume.beta.kubernetes.io/storage-class: local
       spec:
         accessModes:
           - ReadWriteMany
         resources:
           requests:
             storage: 5Gi
-        storageClassName: nfs-client-171
+        storageClassName: local
         volumeMode: Filesystem
       status:
         phase: Pending
