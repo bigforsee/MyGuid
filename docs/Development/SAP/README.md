@@ -16,7 +16,7 @@
 BWD  TEST1	    QWE123
 
 800
-sn0369/Lby13273
+sn0369/Lby13273!
 it0003/Fm@hb30.com
 
 说明：

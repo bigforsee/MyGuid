@@ -32,7 +32,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nacos-headless
-  namespace: middleware
+  namespace: sn-dev
   labels:
     app: nacos
   annotations:
@@ -66,7 +66,7 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: nacos-cm
-  namespace: middleware
+  namespace: sn-dev
 data:
   mysql.db.name: pigxx_config
   mysql.password: root
@@ -143,7 +143,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nacos-cm
-  namespace: middleware
+  namespace: sn-dev
 data:
   mysql.db.name: "nacos_config"
   mysql.port: "3306"
@@ -633,5 +633,237 @@ MYSQL_SERVICE_HOST已经配置文件中也要新增对应配置
 ```
 Environment variables
 When a Pod is run on a Node, the kubelet adds a set of environment variables for each active Service. It adds {SVCNAME}_SERVICE_HOST and {SVCNAME}_SERVICE_PORT variables, where the Service name is upper-cased and dashes are converted to underscores. It also supports variables (see makeLinkVariables) that are compatible with Docker Engine's "legacy container links" feature.
+```
+
+
+
+
+
+2024-07-09部署文件
+
+```yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: nacos-cm
+  namespace: sn-dev
+  annotations:
+    kubesphere.io/creator: admin
+data:
+  mysql.db.name: snx_config
+  mysql.password: P@ssw0rd@213
+  mysql.port: '3306'
+  mysql.user: root
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nacos-headless
+  namespace: sn-dev
+  labels:
+    app: nacos-cluster
+  annotations:
+    kubesphere.io/creator: admin
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: 'true'
+spec:
+  ports:
+    - name: server
+      protocol: TCP
+      port: 8848
+      targetPort: 8848
+    - name: client-rpc
+      protocol: TCP
+      port: 9848
+      targetPort: 9848
+    - name: raft-rpc
+      protocol: TCP
+      port: 9849
+      targetPort: 9849
+    - name: old-raft-rpc
+      protocol: TCP
+      port: 7848
+      targetPort: 7848
+  selector:
+    app: nacos
+  clusterIP: None
+  clusterIPs:
+    - None
+  type: ClusterIP
+  sessionAffinity: None
+---
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: nacos-cluster
+  namespace: sn-dev
+  annotations:
+    kubesphere.io/creator: admin
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nacos-cluster
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: nacos-cluster
+      annotations:
+        kubesphere.io/restartedAt: '2024-07-09T02:12:17.444Z'
+        pod.alpha.kubernetes.io/initialized: 'true'
+    spec:
+      initContainers:
+        - name: peer-finder-plugin-install
+          image: 'nacos/nacos-peer-finder-plugin:1.1'
+          resources: {}
+          volumeMounts:
+            - name: plugindir
+              mountPath: /home/nacos/plugins/peer-finder
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      containers:
+        - name: nacos-cluster
+          image: 'nacos/nacos-server:2.0.2'
+          ports:
+            - name: client-port
+              containerPort: 8848
+              protocol: TCP
+            - name: client-rpc
+              containerPort: 9848
+              protocol: TCP
+            - name: raft-rpc
+              containerPort: 9849
+              protocol: TCP
+            - name: old-raft-rpc
+              containerPort: 7848
+              protocol: TCP
+          env:
+            - name: NACOS_REPLICAS
+              value: '3'
+            - name: SERVICE_NAME
+              value: nacos-headless
+            - name: DOMAIN_NAME
+              value: cluster.local
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: MYSQL_SERVICE_DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.db.name
+            - name: MYSQL_SERVICE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.port
+            - name: MYSQL_SERVICE_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.user
+            - name: MYSQL_SERVICE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: nacos-cm
+                  key: mysql.password
+            - name: NACOS_SERVER_PORT
+              value: '8848'
+            - name: NACOS_APPLICATION_PORT
+              value: '8848'
+            - name: PREFER_HOST_MODE
+              value: hostname
+          resources:
+            requests:
+              cpu: 500m
+              memory: 2Gi
+          volumeMounts:
+            - name: plugindir
+              mountPath: /home/nacos/plugins/peer-finder
+            - name: datadir
+              mountPath: /home/nacos/data
+            - name: logdir
+              mountPath: /home/nacos/logs
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - nacos-cluster
+              topologyKey: kubernetes.io/hostname
+      schedulerName: default-scheduler
+  volumeClaimTemplates:
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: plugindir
+        creationTimestamp: null
+        annotations:
+          volume.beta.kubernetes.io/storage-class: eds-nas-sp
+      spec:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: eds-nas-sp
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: datadir
+        creationTimestamp: null
+        annotations:
+          volume.beta.kubernetes.io/storage-class: eds-nas-sp
+      spec:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: eds-nas-sp
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: logdir
+        creationTimestamp: null
+        annotations:
+          volume.beta.kubernetes.io/storage-class: eds-nas-sp
+      spec:
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: eds-nas-sp
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  serviceName: nacos-headless
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
+  revisionHistoryLimit: 10
+
 ```
 

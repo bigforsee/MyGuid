@@ -100,3 +100,11 @@ DATASTORE_TYPE=kubernetes KUBECONFIG=~/.kube/config calicoctl create -f ippool-o
 kubectl create deployment web --image=nginx -o yaml --dry-run > hello.yaml
 ```
 
+
+
+
+
+```shell
+kubectl get deployment devops-jenkins  -n   kubesphere-devops-system -o yaml   > jenkins.yaml
+```
+

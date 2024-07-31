@@ -166,6 +166,15 @@ mysql-connector-java-8.0.27.jar
 
 
 
+```shell
+-javaagent:/Users/zhouxianhai/Downloads/skywalking-agent/skywalking-agent.jar
+-Dskywalking.agent.service_name=gateway
+-Dskywalking.collector.backend_service=10.30.30.167:32233
+
+```
+
+
+
 
 
 
