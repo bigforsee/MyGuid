@@ -1,6 +1,39 @@
-# Redis分布式集群搭建
+# Redis部署
 
-## Redis有下面四种部署方式
+## 单节点部署
+
+**安装一个 redis**
+
+```shell
+docker pull redis
+
+mkdir -p /mydata/redis/conf
+touch /mydata/redis/conf/redis.conf
+echo "cluster-enabled yes
+cluster-node-timeout 5000
+cluster-require-full-coverage no
+cluster-migration-barrier 1
+appendonly yes
+requirepass 123456" >> /mydata/redis/conf/redis.conf
+
+docker run -p 6379:6379 --name redis --restart=always \
+-v /mydata/redis/data:/data \
+-v /mydata/redis/conf/redis.conf:/etc/redis/redis.conf \
+-d redis redis-server /etc/redis/redis.conf 
+
+```
+
+设置自动启动
+
+```shell
+sudo docker update redis --restart=always
+```
+
+
+
+## Redis分布式集群搭建
+
+### Redis有下面四种部署方式
 
 模式	优点	缺点
 单机版	架构简单，部署方便	机器故障、容量瓶颈、QPS瓶颈

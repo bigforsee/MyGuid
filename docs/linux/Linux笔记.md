@@ -541,3 +541,141 @@ helm install minio \
 
 
 
+## 换源
+
+```html
+https://blog.csdn.net/Hellc007/article/details/141609392
+```
+
+
+
+自动打包并上传脚本
+
+```shell
+#!/bin/bash
+
+# 严格模式设置
+set -euo pipefail
+
+# 基础目录定义
+base_dir="/data/taiyu"
+
+# 参数映射表（自动补全）
+declare -A param_map=(
+  [ar]="arrangement"
+  [ch]="check"
+  [co]="convert"
+  [op]="openresty"
+  [pe]="personnel"
+  [se]="setup"
+)
+
+#######################################
+# 参数校验函数
+# 返回值：
+#   0: 校验通过
+#   1: 校验失败
+#######################################
+validate_input() {
+  # 检查参数是否存在
+  if [ $# -eq 0 ]; then
+    echo -e "\033[31m错误：必须提供1个参数\033[0m"
+    show_usage
+    return 1
+  fi
+
+  # 检查参数有效性
+  if [[ -z "${param_map[$1]-}" ]]; then
+    echo -e "\033[31m错误：无效参数 '$1'\033[0m"
+    show_usage
+    return 1
+  fi
+
+  return 0
+}
+
+#######################################
+# 显示用法信息（带参数说明）
+#######################################
+show_usage() {
+  echo "有效参数："
+  for key in "${!param_map[@]}"; do
+    printf "  %-2s : %s\n" "$key" "${param_map[$key]}"
+  done
+  echo "示例：$0 ar"
+}
+
+#######################################
+# 主执行流程
+#######################################
+main() {
+  # 参数校验
+  validate_input "$@" || exit 1
+
+  # 获取参数信息
+  local input_param=$1
+  local param_full="${param_map[$input_param]}"
+
+  echo -e "\033[34m输入参数：$input_param ($param_full)\033[0m"
+
+  # 创建/切换目录
+  if [ ! -d "$base_dir" ]; then
+    echo "正在创建目录 $base_dir"
+    mkdir -p "$base_dir"
+  fi
+
+  cd "$base_dir" || {
+    echo -e "\033[31m目录切换失败\033[0m"
+    exit 1
+  }
+
+  # 更新或克隆 archives 仓库
+  archives_dir="$base_dir/archives"
+  if [ ! -d "$archives_dir" ]; then
+    echo "正在克隆仓库..."
+    git clone -b dev http://zhouxianhai@qq.com:zxh123456@10.30.30.77/root/archives.git archives
+  else
+    echo "正在更新仓库..."
+    # 保存当前工作
+    (cd "$archives_dir" && git pull)
+  fi
+
+  # 进入项目目录
+  cd "$archives_dir/$param_full" || {
+    echo -e "\033[31m项目目录不存在\033[0m"
+    exit 1
+  }
+
+  # Docker 构建流程
+  docker build -f Dockerfile -t 10.30.30.171:10880/taiyu/dev/$param_full:latest . || {
+    echo -e "\033[31mDocker 构建失败\033[0m"
+    exit 1
+  }
+
+  # Docker 登录
+  DOCKER_USERNAME="admin"
+  DOCKER_PASSWORD="30Harbor@30"
+  echo "正在登录镜像仓库..."
+  docker login 10.30.30.171:10880 -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" || {
+    echo -e "\033[31mDocker 登录失败\033[0m"
+    exit 1
+  }
+
+  # Docker 推送
+  echo "正在推送镜像..."
+  docker push 10.30.30.171:10880/taiyu/dev/$param_full:latest || {
+    echo -e "\033[31m镜像推送失败\033[0m"
+    exit 1
+  }
+
+  # 清理本地镜像
+  docker rmi 10.30.30.171:10880/taiyu/dev/$param_full:latest
+
+  echo -e "\033[32m[SUCCESS] 所有操作已完成\033[0m"
+}
+
+# 执行主函数
+main "$@"
+
+```
+

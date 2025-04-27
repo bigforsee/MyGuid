@@ -19,6 +19,8 @@ BWD  TEST1	    QWE123
 sn0369/Lby13273!
 it0003/Fm@hb30.com
 
+IT0004/Aa.13040969780
+
 说明：
 	200是开发环境和300是在一起的，只需要修改集团就可以切换200 300 系统
 	300是软件代码测试环境
@@ -508,3 +510,32 @@ UPDATE    X  （如果是显示 就SHOW）
 
 
 sm59 RFC链接事务码
+
+
+
+
+
+# ABAP使用LOOP AT ASSIGNING FIELD SYMBOL直接更新内表数据
+
+
+
+# 判断内表是否为空注意写法 IS NOT INITIAL
+
+```abap
+IF itab[] IS NOT INITIAL.
+
+ENDIF.
+```
+
+
+
+SROXY设置
+
+![image-20250427101919112](./assets/image-20250427101919112.png)
+
+![image-20250427101944655](./assets/image-20250427101944655.png)
+
+![image-20250427101957415](./assets/image-20250427101957415.png)
+
+
+

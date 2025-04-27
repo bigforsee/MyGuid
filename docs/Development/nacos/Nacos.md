@@ -867,3 +867,25 @@ spec:
 
 ```
 
+
+
+
+
+## Docker三宁Nacos部署
+
+```shell
+docker pull 10.30.30.171:10880/sn-dev/sn-register:latest
+
+docker run -p 8848:8848 -p 9848:9848 -p 9849:9848 -p 7848:7848 --name register \
+--restart=always \
+-e MYSQL_SERVICE_DB_NAME=snx-config \
+-e MYSQL_SERVICE_PORT=30694 \
+-e MYSQL_SERVICE_USER="root" \
+-e MYSQL_SERVICE_PASSWORD='2022Sn@30!666' \
+-e MYSQL_SERVICE_HOST="10.30.30.167" \
+-e NACOS_SERVER_PORT=8848 \
+-e NACOS_APPLICATION_PORT=8848 \
+-d 10.30.30.171:10880/sn-dev/sn-register:latest
+
+```
+
