@@ -92,3 +92,8 @@ sm59 数据源链接配置
 
 ![image-20240522162813458](images\DataStory Object)
 
+
+
+
+
+DB02 直接执行数据库SQL
