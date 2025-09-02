@@ -109,3 +109,91 @@ docker run -dit  --net=host --restart=always --name naspgy \
 bestoray/pgyenterprise:latest
 ```
 
+
+
+虚拟机
+
+```shell
+ubuntu docker/zxh@12239
+```
+
+一键部署开发环境
+
+vi docker.ini.sh  i 输入下面内容后:wq!  chmod +x docker.ini.sh 
+
+```
+#!/bin/bash
+# 安装 Docker 和 Docker Compose 的一键脚本 - 自动判断系统
+
+# 检测当前操作系统
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    OS=$ID
+else
+    echo "无法检测到你的操作系统。"
+    exit 1
+fi
+
+# 根据操作系统执行相应的安装步骤
+case $OS in
+    centos)
+        echo "检测到 CentOS 系统，开始安装 Docker 和 Docker Compose..."
+
+        # 更新系统
+        sudo yum update -y
+
+        # 安装所需的依赖
+        sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+
+        # 添加 Docker 仓库
+        sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+        # 安装 Docker
+        sudo yum install -y docker-ce docker-ce-cli containerd.io
+
+        # 启动 Docker 服务
+        sudo systemctl start docker
+
+        # 设置 Docker 开机自启
+        sudo systemctl enable docker
+        ;;
+    ubuntu)
+        echo "检测到 Ubuntu 系统，开始安装 Docker 和 Docker Compose..."
+
+        # 更新系统
+        sudo apt-get update -y
+
+        # 安装所需的依赖
+        sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+
+        # 添加 Docker 的 GPG 密钥
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+
+        # 添加 Docker 仓库
+        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+        # 更新系统
+        sudo apt-get update -y
+
+        # 安装 Docker
+        sudo apt-get install -y docker-ce
+        ;;
+    *)
+        echo "暂不支持你的操作系统：$OS"
+        exit 1
+        ;;
+esac
+
+# 安装 Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+# 设置可执行权限
+sudo chmod +x /usr/local/bin/docker-compose
+
+# 输出版本信息以验证安装成功
+echo "Docker version:"
+docker --version
+echo "Docker Compose version:"
+docker-compose --version
+```
+
