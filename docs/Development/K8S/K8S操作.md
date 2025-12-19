@@ -108,3 +108,24 @@ kubectl create deployment web --image=nginx -o yaml --dry-run > hello.yaml
 kubectl get deployment devops-jenkins  -n   kubesphere-devops-system -o yaml   > jenkins.yaml
 ```
 
+
+
+
+
+删除故障容器脚本
+
+```shell
+# cat delete.sh
+#!/bin/bash
+#删除有问题的容器
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/root/bin
+echo "------------------------------------------------------------"
+echo 'start====='
+#tmp=`kubectl get pod -n kubesphere-monitoring-system --no-headers | grep Terminating| awk '{print $1}'`
+#echo $tmp
+for pod in `kubectl get pod -n $1   --no-headers | grep Terminating| awk '{print $1}' | xargs`; do
+        echo "pod:" $pod
+       kubectl delete pod -n $1 $pod --force
+done
+```
+
